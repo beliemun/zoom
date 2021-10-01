@@ -4,11 +4,14 @@ const roomContainer = document.getElementById("roomContainer");
 const roomForm = roomContainer.querySelector("form");
 
 const messageContainer = document.getElementById("messageContainer");
-const messageForm = messageContainer.querySelector("form");
+const nicknameForm = messageContainer.querySelector("#nickname");
+const messageForm = messageContainer.querySelector("#message");
+
 
 messageContainer.hidden = true;
 
 let roomName;
+let nickname = "You";
 
 const addMessage = (message) => {
     const ul = messageContainer.querySelector("ul");
@@ -32,24 +35,32 @@ const handleRoomSubmit = (event) => {
     input.value = "";
 }
 
+const handleNicknameSubmit = (event) => {
+    event.preventDefault();
+    const input = nicknameForm.querySelector("input");
+    nickname = input.value;
+    socket.emit("nickname", input.value);
+}
+
 const handleMessageSubmit = (event) => {
     event.preventDefault();
     const input = messageForm.querySelector("input");
     socket.emit("new_message", input.value, roomName, () => {
-        addMessage(`You: ${input.value}`)
+        addMessage(`${nickname}: ${input.value}`)
         input.value = "";
     })
 }
 
 roomForm.addEventListener("submit", handleRoomSubmit);
+nicknameForm.addEventListener("submit", handleNicknameSubmit);
 messageForm.addEventListener("submit", handleMessageSubmit);
 
-socket.on("welcome", () => {
-    addMessage("Someone Joined!");
+socket.on("welcome", (nickname) => {
+    addMessage(`${nickname} joined!`);
 });
-socket.on("bye", () => {
-    addMessage("Someone left!");
+socket.on("bye", (nickname) => {
+    addMessage(`${nickname} left.`);
 })
-socket.on("new_message", (message) => {
-    addMessage(message);
+socket.on("new_message", (nickname, message) => {
+    addMessage(`${nickname}: ${message}`);
 })
