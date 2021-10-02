@@ -55,12 +55,25 @@ roomForm.addEventListener("submit", handleRoomSubmit);
 nicknameForm.addEventListener("submit", handleNicknameSubmit);
 messageForm.addEventListener("submit", handleMessageSubmit);
 
-socket.on("welcome", (nickname) => {
+socket.on("welcome", (nickname, count) => {
     addMessage(`${nickname} joined!`);
+    const h3 = messageContainer.querySelector("h3");
+    h3.innerHTML = `Room: ${roomName}(${count})`
 });
-socket.on("bye", (nickname) => {
+socket.on("bye", (nickname, count) => {
     addMessage(`${nickname} left.`);
+    const h3 = messageContainer.querySelector("h3");
+    h3.innerHTML = `Room: ${roomName}(${count})`
 })
 socket.on("new_message", (nickname, message) => {
     addMessage(`${nickname}: ${message}`);
+})
+socket.on("room_change", (rooms) => {
+    const ul = roomContainer.querySelector("ul");
+    ul.innerHTML = "";
+    rooms.forEach((room) => {
+        const li = document.createElement("li");
+        li.innerText = room
+        ul.append(li);
+    })
 })
